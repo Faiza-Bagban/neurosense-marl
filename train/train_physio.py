@@ -54,7 +54,8 @@ def train():
     for x in X_test:
         action, conf = agent.predict(x)
         preds.append(action)
-        confidences.append(conf)
+        x_norm = (x - agent.feature_mean) / agent.feature_std
+        confidences.append(agent.agent.predict_proba_positive(x_norm))
     preds = np.array(preds)
 
     acc = np.mean(preds == y_test)

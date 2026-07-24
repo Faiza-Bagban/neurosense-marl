@@ -79,6 +79,14 @@ class PPOAgent:
             confidence = probs[0, action].item()
         return action, confidence
 
+    def predict_proba_positive(self, state: np.ndarray) -> float:
+        """Return P(action=1) specifically — needed for correct AUC computation."""
+        state_t = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+        with torch.no_grad():
+            logits = self.policy(state_t)
+            probs = torch.softmax(logits, dim=-1)
+        return probs[0, 1].item()
+
     def update(self, states, actions, old_log_probs, rewards, epochs: int = 4):
         """Single-step episodic PPO update (each sample = one-step episode)."""
         states_t = torch.tensor(np.array(states), dtype=torch.float32, device=self.device)
