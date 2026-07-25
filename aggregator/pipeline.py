@@ -16,6 +16,8 @@ from agents.physio_agent import PhysioAgent, load_physio_data, FEATURE_COLS as P
 from agents.behavior_agent import BehaviorAgent, load_behavior_data
 from agents.context_agent import ContextAgent, load_context_data, CONTEXT_FEATURE_COLS
 from aggregator.llm_aggregator import aggregate
+from explainability.shap_utils import compute_shap_values, top_features_for_sample
+from explainability.rationale_eval import build_explanation_record, print_explanation_record
 
 
 def load_trained_agents():
@@ -69,8 +71,27 @@ def run_pipeline_once(seed: int = None):
     print("\nAggregated result:")
     print(f"  Risk level: {result['risk_level']}")
     print(f"  Rationale:  {result['rationale']}")
-    return result
 
+    # SHAP explanations for physio + context
+    bg_idx = np.random.choice(len(X_physio), size=50, replace=False)
+    X_physio_norm = (X_physio - physio.feature_mean) / physio.feature_std
+    physio_shap = compute_shap_values(physio.agent.policy, X_physio_norm[bg_idx], X_physio_norm[idx:idx+1])
+    physio_top = top_features_for_sample(physio_shap[0], PHYSIO_COLS)
+
+    X_context_norm = (X_context - context.feature_mean) / context.feature_std
+    context_shap = compute_shap_values(context.agent.policy, X_context_norm[bg_idx], X_context_norm[idx:idx+1])
+    context_top = top_features_for_sample(context_shap[0], CONTEXT_FEATURE_COLS)
+
+    record = build_explanation_record(
+        physio_action, physio_conf, physio_top,
+        behavior_action, behavior_conf,
+        context_action, context_conf, context_top,
+        result,
+    )
+    print("\n=== Full Explanation Record ===")
+    print_explanation_record(record)
+
+    return record
 
 if __name__ == "__main__":
     run_pipeline_once(seed=42)
