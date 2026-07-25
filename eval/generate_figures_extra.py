@@ -30,13 +30,13 @@ def style_spines(ax):
 
 def fig_confusion_matrix(y_true, y_pred, title, filename):
     cm = confusion_matrix(y_true, y_pred)
-    fig, ax = plt.subplots(figsize=(5.5, 4.8))
+    fig, ax = plt.subplots(figsize=(6, 5))
     im = ax.imshow(cm, cmap="Blues")
     ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
     ax.set_xticklabels(["Non-risk", "Risk"], fontsize=11, fontweight="bold")
     ax.set_yticklabels(["Non-risk", "Risk"], fontsize=11, fontweight="bold")
-    ax.set_xlabel("Predicted", fontsize=12, fontweight="bold")
-    ax.set_ylabel("True", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Predicted", fontsize=12, fontweight="bold", labelpad=8)
+    ax.set_ylabel("True", fontsize=12, fontweight="bold", labelpad=12)
     ax.set_title(title, fontsize=13, fontweight="bold", pad=12)
     for i in range(2):
         for j in range(2):
@@ -48,11 +48,10 @@ def fig_confusion_matrix(y_true, y_pred, title, filename):
     for label in cbar.ax.get_yticklabels():
         label.set_fontweight("bold")
     style_spines(ax)
-    plt.tight_layout()
+    fig.subplots_adjust(left=0.2, bottom=0.15)
     plt.savefig(f"{OUT_DIR}/{filename}", dpi=150)
     plt.close()
     print(f"Saved {filename}")
-
 
 def fig_roc_curve(y_true, y_score, title, filename):
     fpr, tpr, _ = roc_curve(y_true, y_score)
