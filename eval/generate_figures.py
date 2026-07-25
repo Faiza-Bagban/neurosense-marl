@@ -36,8 +36,9 @@ def fig_loso_per_subject():
     df = pd.read_csv("results/physio_loso_results.csv")
     fig, ax = plt.subplots(figsize=(11, 5.5))
     x = range(len(df))
-    ax.bar(x, df["acc"], label="Accuracy", alpha=0.7, width=0.6)
-    ax.bar(x, df["f1"], label="F1", alpha=0.7, width=0.35)
+    width = 0.35
+    ax.bar([i - width/2 for i in x], df["acc"], width, label="Accuracy")
+    ax.bar([i + width/2 for i in x], df["f1"], width, label="F1")
     ax.set_xticks(x)
     ax.set_xticklabels(df["subject"], rotation=45, fontsize=10, fontweight="bold")
     ax.set_ylabel("Score", fontsize=13, fontweight="bold")
@@ -53,7 +54,6 @@ def fig_loso_per_subject():
     plt.savefig(f"{OUT_DIR}/loso_per_subject.png", dpi=150)
     plt.close()
     print("Saved loso_per_subject.png")
-
 
 def fig_baseline_comparison():
     baselines = pd.read_csv("results/baseline_results.csv")
