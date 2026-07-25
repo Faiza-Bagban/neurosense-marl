@@ -2,7 +2,8 @@
 eval/generate_figures_extra.py
 Additional figure variety: confusion matrices, ROC curves, feature
 correlation heatmap.
-Styling: bold text throughout, font size 14-16, visible spines.
+Styling: bold text, visible spines, font sizes tuned per-figure to avoid
+legend/label clashes on dense plots.
 """
 import numpy as np
 import pandas as pd
@@ -12,15 +13,9 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc
 OUT_DIR = "paper/figures"
 
 plt.rcParams.update({
-    "font.size": 14,
     "font.weight": "bold",
     "axes.labelweight": "bold",
     "axes.titleweight": "bold",
-    "axes.titlesize": 16,
-    "axes.labelsize": 14,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
-    "legend.fontsize": 14,
     "axes.linewidth": 1.5,
     "axes.edgecolor": "black",
 })
@@ -35,20 +30,21 @@ def style_spines(ax):
 
 def fig_confusion_matrix(y_true, y_pred, title, filename):
     cm = confusion_matrix(y_true, y_pred)
-    fig, ax = plt.subplots(figsize=(5, 4))
+    fig, ax = plt.subplots(figsize=(5.5, 4.8))
     im = ax.imshow(cm, cmap="Blues")
     ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
-    ax.set_xticklabels(["Non-risk", "Risk"], fontweight="bold")
-    ax.set_yticklabels(["Non-risk", "Risk"], fontweight="bold")
-    ax.set_xlabel("Predicted", fontweight="bold")
-    ax.set_ylabel("True", fontweight="bold")
-    ax.set_title(title, fontweight="bold")
+    ax.set_xticklabels(["Non-risk", "Risk"], fontsize=11, fontweight="bold")
+    ax.set_yticklabels(["Non-risk", "Risk"], fontsize=11, fontweight="bold")
+    ax.set_xlabel("Predicted", fontsize=12, fontweight="bold")
+    ax.set_ylabel("True", fontsize=12, fontweight="bold")
+    ax.set_title(title, fontsize=13, fontweight="bold", pad=12)
     for i in range(2):
         for j in range(2):
             ax.text(j, i, cm[i, j], ha="center", va="center",
                      color="white" if cm[i, j] > cm.max() / 2 else "black",
-                     fontsize=14, fontweight="bold")
-    cbar = plt.colorbar(im)
+                     fontsize=13, fontweight="bold")
+    cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
+    cbar.ax.tick_params(labelsize=9)
     for label in cbar.ax.get_yticklabels():
         label.set_fontweight("bold")
     style_spines(ax)
@@ -61,17 +57,16 @@ def fig_confusion_matrix(y_true, y_pred, title, filename):
 def fig_roc_curve(y_true, y_score, title, filename):
     fpr, tpr, _ = roc_curve(y_true, y_score)
     roc_auc = auc(fpr, tpr)
-    fig, ax = plt.subplots(figsize=(5, 5))
+    fig, ax = plt.subplots(figsize=(5.5, 5.5))
     ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.3f}", linewidth=2.5)
     ax.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Chance", linewidth=2)
-    ax.set_xlabel("False Positive Rate", fontweight="bold")
-    ax.set_ylabel("True Positive Rate", fontweight="bold")
-    ax.set_title(title, fontweight="bold")
-    for label in ax.get_xticklabels():
+    ax.set_xlabel("False Positive Rate", fontsize=12, fontweight="bold")
+    ax.set_ylabel("True Positive Rate", fontsize=12, fontweight="bold")
+    ax.set_title(title, fontsize=13, fontweight="bold", pad=12)
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
         label.set_fontweight("bold")
-    for label in ax.get_yticklabels():
-        label.set_fontweight("bold")
-    leg = ax.legend()
+        label.set_fontsize(10)
+    leg = ax.legend(fontsize=10, loc="lower right", frameon=True)
     for text in leg.get_texts():
         text.set_fontweight("bold")
     style_spines(ax)
@@ -87,14 +82,15 @@ def fig_feature_correlation_heatmap():
     df = pd.DataFrame(X, columns=FEATURE_COLS)
     corr = df.corr()
 
-    fig, ax = plt.subplots(figsize=(8, 7))
+    fig, ax = plt.subplots(figsize=(9, 8))
     im = ax.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
     ax.set_xticks(range(len(FEATURE_COLS)))
     ax.set_yticks(range(len(FEATURE_COLS)))
-    ax.set_xticklabels(FEATURE_COLS, rotation=90, fontsize=12, fontweight="bold")
-    ax.set_yticklabels(FEATURE_COLS, fontsize=12, fontweight="bold")
-    ax.set_title("Physio Feature Correlation Heatmap", fontweight="bold")
-    cbar = plt.colorbar(im)
+    ax.set_xticklabels(FEATURE_COLS, rotation=90, fontsize=9, fontweight="bold")
+    ax.set_yticklabels(FEATURE_COLS, fontsize=9, fontweight="bold")
+    ax.set_title("Physio Feature Correlation Heatmap", fontsize=14, fontweight="bold", pad=14)
+    cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
+    cbar.ax.tick_params(labelsize=10)
     for label in cbar.ax.get_yticklabels():
         label.set_fontweight("bold")
     style_spines(ax)
