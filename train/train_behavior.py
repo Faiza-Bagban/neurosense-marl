@@ -57,8 +57,20 @@ def train():
     f1 = f1_score(y_test, preds, zero_division=0)
     auc = roc_auc_score(y_test, confidences)
 
+    # print(f"\nTest results:")
+    # print(f"Accuracy: {acc:.3f} | F1: {f1:.3f} | AUC: {auc:.3f}")
+
+    # agent.save("results/behavior_agent.pt")
+    # print("Saved model to results/behavior_agent.pt")
+
     print(f"\nTest results:")
     print(f"Accuracy: {acc:.3f} | F1: {f1:.3f} | AUC: {auc:.3f}")
+
+    import pandas as pd
+    pd.DataFrame([{"acc": acc, "f1": f1, "auc": auc, "n_test": len(X_test)}]).to_csv(
+        "results/behavior_results.csv", index=False
+    )
+    print("Saved results to results/behavior_results.csv")
 
     agent.save("results/behavior_agent.pt")
     print("Saved model to results/behavior_agent.pt")

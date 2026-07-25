@@ -1,0 +1,11 @@
+component,accuracy,f1,auc
+"Physio Agent (PPO, LOSO)",0.905 ± 0.091,0.787 ± 0.262,0.966 ± 0.062
+"Context Agent (PPO, LOSO)",0.811 ± 0.095,0.717 ± 0.153,0.887 ± 0.125
+Behavior Agent (PPO),0.952,0.951,0.985
+Baseline: physio / LogisticRegression,0.859 ± 0.134,0.717 ± 0.285,0.954 ± 0.074
+Baseline: physio / RandomForest,0.874 ± 0.138,0.796 ± 0.185,0.949 ± 0.090
+Baseline: behavior / LogisticRegression,0.951 ± 0.000,0.949 ± 0.000,0.984 ± 0.000
+Baseline: behavior / RandomForest,0.954 ± 0.000,0.953 ± 0.000,0.983 ± 0.000
+Ablation: Physio-only,0.948,0.909,-
+Ablation: Context-only,0.836,0.763,-
+Ablation: Physio+Context fusion,0.928,0.888,-
