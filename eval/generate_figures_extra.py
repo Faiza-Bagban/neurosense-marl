@@ -2,6 +2,7 @@
 eval/generate_figures_extra.py
 Additional figure variety: confusion matrices, ROC curves, feature
 correlation heatmap.
+Styling: bold text throughout, font size 14-16, visible spines.
 """
 import numpy as np
 import pandas as pd
@@ -10,22 +11,47 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc
 
 OUT_DIR = "paper/figures"
 
+plt.rcParams.update({
+    "font.size": 14,
+    "font.weight": "bold",
+    "axes.labelweight": "bold",
+    "axes.titleweight": "bold",
+    "axes.titlesize": 16,
+    "axes.labelsize": 14,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
+    "legend.fontsize": 14,
+    "axes.linewidth": 1.5,
+    "axes.edgecolor": "black",
+})
+
+
+def style_spines(ax):
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_linewidth(1.5)
+        spine.set_color("black")
+
 
 def fig_confusion_matrix(y_true, y_pred, title, filename):
     cm = confusion_matrix(y_true, y_pred)
     fig, ax = plt.subplots(figsize=(5, 4))
     im = ax.imshow(cm, cmap="Blues")
     ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
-    ax.set_xticklabels(["Non-risk", "Risk"])
-    ax.set_yticklabels(["Non-risk", "Risk"])
-    ax.set_xlabel("Predicted")
-    ax.set_ylabel("True")
-    ax.set_title(title)
+    ax.set_xticklabels(["Non-risk", "Risk"], fontweight="bold")
+    ax.set_yticklabels(["Non-risk", "Risk"], fontweight="bold")
+    ax.set_xlabel("Predicted", fontweight="bold")
+    ax.set_ylabel("True", fontweight="bold")
+    ax.set_title(title, fontweight="bold")
     for i in range(2):
         for j in range(2):
             ax.text(j, i, cm[i, j], ha="center", va="center",
-                     color="white" if cm[i, j] > cm.max() / 2 else "black", fontsize=14)
-    plt.colorbar(im)
+                     color="white" if cm[i, j] > cm.max() / 2 else "black",
+                     fontsize=14, fontweight="bold")
+    cbar = plt.colorbar(im)
+    for label in cbar.ax.get_yticklabels():
+        label.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/{filename}", dpi=150)
     plt.close()
@@ -36,12 +62,19 @@ def fig_roc_curve(y_true, y_score, title, filename):
     fpr, tpr, _ = roc_curve(y_true, y_score)
     roc_auc = auc(fpr, tpr)
     fig, ax = plt.subplots(figsize=(5, 5))
-    ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.3f}")
-    ax.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Chance")
-    ax.set_xlabel("False Positive Rate")
-    ax.set_ylabel("True Positive Rate")
-    ax.set_title(title)
-    ax.legend()
+    ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.3f}", linewidth=2.5)
+    ax.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Chance", linewidth=2)
+    ax.set_xlabel("False Positive Rate", fontweight="bold")
+    ax.set_ylabel("True Positive Rate", fontweight="bold")
+    ax.set_title(title, fontweight="bold")
+    for label in ax.get_xticklabels():
+        label.set_fontweight("bold")
+    for label in ax.get_yticklabels():
+        label.set_fontweight("bold")
+    leg = ax.legend()
+    for text in leg.get_texts():
+        text.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/{filename}", dpi=150)
     plt.close()
@@ -58,10 +91,13 @@ def fig_feature_correlation_heatmap():
     im = ax.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
     ax.set_xticks(range(len(FEATURE_COLS)))
     ax.set_yticks(range(len(FEATURE_COLS)))
-    ax.set_xticklabels(FEATURE_COLS, rotation=90, fontsize=8)
-    ax.set_yticklabels(FEATURE_COLS, fontsize=8)
-    ax.set_title("Physio Feature Correlation Heatmap")
-    plt.colorbar(im)
+    ax.set_xticklabels(FEATURE_COLS, rotation=90, fontsize=12, fontweight="bold")
+    ax.set_yticklabels(FEATURE_COLS, fontsize=12, fontweight="bold")
+    ax.set_title("Physio Feature Correlation Heatmap", fontweight="bold")
+    cbar = plt.colorbar(im)
+    for label in cbar.ax.get_yticklabels():
+        label.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/physio_feature_correlation.png", dpi=150)
     plt.close()
@@ -72,7 +108,6 @@ def fig_physio_confusion_and_roc():
     from agents.physio_agent import PhysioAgent, load_physio_data, FEATURE_COLS
     X, y, subjects = load_physio_data()
 
-    # use held-out subjects S16, S17 (same as original single-split test, for a clean eval set)
     test_mask = np.isin(subjects, ["S16", "S17"])
     train_mask = ~test_mask
     X_train, y_train = X[train_mask], y[train_mask]

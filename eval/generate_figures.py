@@ -2,11 +2,33 @@
 eval/generate_figures.py
 Generates paper-ready figures from saved results CSVs.
 Saves all as PNG into paper/figures/.
+Styling: bold text throughout, font size 14-16, visible spines.
 """
 import pandas as pd
 import matplotlib.pyplot as plt
 
 OUT_DIR = "paper/figures"
+
+plt.rcParams.update({
+    "font.size": 14,
+    "font.weight": "bold",
+    "axes.labelweight": "bold",
+    "axes.titleweight": "bold",
+    "axes.titlesize": 16,
+    "axes.labelsize": 14,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
+    "legend.fontsize": 14,
+    "axes.linewidth": 1.5,
+    "axes.edgecolor": "black",
+})
+
+
+def style_spines(ax):
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_linewidth(1.5)
+        spine.set_color("black")
 
 
 def fig_loso_per_subject():
@@ -16,10 +38,15 @@ def fig_loso_per_subject():
     ax.bar(x, df["acc"], label="Accuracy", alpha=0.7)
     ax.bar(x, df["f1"], label="F1", alpha=0.7, width=0.5)
     ax.set_xticks(x)
-    ax.set_xticklabels(df["subject"], rotation=45)
-    ax.set_ylabel("Score")
-    ax.set_title("Physio Agent — Per-Subject LOSO Performance")
-    ax.legend()
+    ax.set_xticklabels(df["subject"], rotation=45, fontweight="bold")
+    ax.set_ylabel("Score", fontweight="bold")
+    ax.set_title("Physio Agent — Per-Subject LOSO Performance", fontweight="bold")
+    for label in ax.get_yticklabels():
+        label.set_fontweight("bold")
+    leg = ax.legend()
+    for text in leg.get_texts():
+        text.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/loso_per_subject.png", dpi=150)
     plt.close()
@@ -47,10 +74,15 @@ def fig_baseline_comparison():
     ax.bar([i - width/2 for i in x], accs, width, label="Accuracy")
     ax.bar([i + width/2 for i in x], f1s, width, label="F1")
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, fontsize=8)
-    ax.set_ylabel("Score")
-    ax.set_title("Baseline Classifiers vs MARL (PPO) Agents")
-    ax.legend()
+    ax.set_xticklabels(labels, fontsize=12, fontweight="bold")
+    ax.set_ylabel("Score", fontweight="bold")
+    ax.set_title("Baseline Classifiers vs MARL (PPO) Agents", fontweight="bold")
+    for label in ax.get_yticklabels():
+        label.set_fontweight("bold")
+    leg = ax.legend()
+    for text in leg.get_texts():
+        text.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/baseline_comparison.png", dpi=150)
     plt.close()
@@ -65,10 +97,15 @@ def fig_ablation():
     ax.bar([i - width/2 for i in x], df["acc"], width, label="Accuracy")
     ax.bar([i + width/2 for i in x], df["f1"], width, label="F1")
     ax.set_xticks(x)
-    ax.set_xticklabels(df["config"], rotation=15)
-    ax.set_ylabel("Score")
-    ax.set_title("Ablation: Physio-only vs Context-only vs Fusion")
-    ax.legend()
+    ax.set_xticklabels(df["config"], rotation=15, fontweight="bold")
+    ax.set_ylabel("Score", fontweight="bold")
+    ax.set_title("Ablation: Physio-only vs Context-only vs Fusion", fontweight="bold")
+    for label in ax.get_yticklabels():
+        label.set_fontweight("bold")
+    leg = ax.legend()
+    for text in leg.get_texts():
+        text.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/ablation.png", dpi=150)
     plt.close()
@@ -95,8 +132,13 @@ def fig_shap_summary():
     order = np.argsort(mean_abs)
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.barh([FEATURE_COLS[i] for i in order], mean_abs[order])
-    ax.set_xlabel("Mean |SHAP value|")
-    ax.set_title("Physio Agent — SHAP Feature Importance")
+    ax.set_xlabel("Mean |SHAP value|", fontweight="bold")
+    ax.set_title("Physio Agent — SHAP Feature Importance", fontweight="bold")
+    for label in ax.get_yticklabels():
+        label.set_fontweight("bold")
+    for label in ax.get_xticklabels():
+        label.set_fontweight("bold")
+    style_spines(ax)
     plt.tight_layout()
     plt.savefig(f"{OUT_DIR}/shap_physio_summary.png", dpi=150)
     plt.close()
